@@ -6,7 +6,7 @@ import json
 
 
 #
-class TestVies(TestCase):
+class TestViews(TestCase):
     """
    Test cases for views in the app.
    """
