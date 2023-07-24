@@ -5,6 +5,8 @@ ENV PYTHONUNBUFFERED 1
 
 COPY ./requirements.txt /requirements.txt
 COPY ./assignment /assignment
+COPY ./scripts /scripts
+
 
 WORKDIR /assignment
 EXPOSE 8000
@@ -15,8 +17,9 @@ RUN python -m venv /py && \
     apk add --update --no-cache --virtual .tmp-deps \
         build-base postgresql-dev musl-dev linux-headers && \
     /py/bin/pip install -r /requirements.txt && \
-    apk del .tmp-deps
+    apk del .tmp-deps && \
+    chmod -R +x /scripts
 
-ENV PATH="/py/bin:$PATH"
+ENV PATH="/scripts:/py/bin:$PATH"
 
-
+CMD ["run.sh"]
