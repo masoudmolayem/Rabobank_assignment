@@ -17,7 +17,7 @@ To run the application on your machine, please follow the steps below:
 
 4. To run tests, execute the following command:
    ```
-   docker compose -f docker-compose-deploy.yml run --rm kalaha_app sh -c "python manage.py test gamecore"
+   docker compose -f docker-compose-deploy.yml run --rm assignment_app sh -c "python manage.py test todo"
    ```
    
 5. Start the application using Docker Compose by running the following command:
