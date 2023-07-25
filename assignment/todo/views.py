@@ -93,7 +93,8 @@ class TaskView(View):
         if "id" not in data:
             return JsonResponse({"message": "there is not id in variables"}, status=400)
         task = get_object_or_404(self.model, pk=data["id"])
-        task.delete()
+        task.status="Deleted"
+        task.save()
         return JsonResponse({'message': 'Task deleted successfully'}, status=204)
 
 

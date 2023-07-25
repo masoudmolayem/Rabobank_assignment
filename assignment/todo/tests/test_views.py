@@ -70,10 +70,10 @@ class TestTask(TestCase):
         json_data = json.dumps(data)
         response = self.client.delete(self.url_task, json_data)
         self.assertEqual(response.status_code, 204)
-        with self.assertRaises(Task.DoesNotExist):
-            Task.objects.get(pk=task_id)
+        t = Task.objects.get(pk=task_id)
+        self.assertEqual(t.status, "Deleted")
 
-    ###(other) test cases for edges
+    # (other) test cases for edges
     def test_get_task_with_non_existent_id(self):
         get_url = self.url_task + "?id={}".format(9999)
         response = self.client.get(get_url)
@@ -97,7 +97,6 @@ class TestTask(TestCase):
         response = self.client.post(self.url_task, data=new_task)
         self.assertEqual(response.status_code, 400)
 
-
     def test_update_task_with_non_existent_id(self):
         data = {
             'id': 9999,  # A non-existent ID
@@ -119,7 +118,7 @@ class TestTask(TestCase):
 
     def test_update_task_missing_data1(self):
         data = {
-            "id" : self.task.id,
+            "id": self.task.id,
             'description': 'Updated task description',
             'status': 'Completed'
         }
@@ -128,7 +127,7 @@ class TestTask(TestCase):
 
     def test_update_task_missing_data2(self):
         data = {
-            "id" : self.task.id,
+            "id": self.task.id,
             'title': 'Updated task',
             'status': 'Completed'
         }
@@ -137,7 +136,7 @@ class TestTask(TestCase):
 
     def test_update_task_missing_data3(self):
         data = {
-            "id" : self.task.id,
+            "id": self.task.id,
             'title': 'Updated task',
             'description': 'Updated task description'
         }
@@ -160,7 +159,6 @@ class TestTask(TestCase):
         }
         response = self.client.delete(self.url_task, data, content_type='application/json')
         self.assertEqual(response.status_code, 404)
-
 
     def test_delete_task_without_sending_id(self):
         data = {}
