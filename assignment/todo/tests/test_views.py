@@ -6,7 +6,7 @@ import json
 
 
 #
-class TestViews(TestCase):
+class TestTask(TestCase):
     """
    Test cases for views in the app.
    """
@@ -22,22 +22,6 @@ class TestViews(TestCase):
             description="description of task1",
             status="Pending"
         )
-        Task.objects.create(
-            name="task_completed",
-            description="description",
-            status="Completed"
-        )
-        Task.objects.create(
-            name="task_deleted",
-            description="description",
-            status="Deleted"
-        )
-        Task.objects.create(
-            name="task_pending",
-            description="description",
-            status="Pending"
-        )
-
 
     def test_task_get(self):
         get_url = self.url_task + "?id={}".format(self.task.id)
@@ -90,32 +74,89 @@ class TestViews(TestCase):
         with self.assertRaises(Task.DoesNotExist):
             Task.objects.get(pk=task_id)
 
+    ###(other) test cases for edges
+    def test_get_task_with_non_existent_id(self):
+        get_url = self.url_task + "?id={}".format(9999)
+        response = self.client.get(get_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_update_task_with_non_existent_id(self):
+        data = {
+            'id': 9999,  # A non-existent ID
+            'title': 'Updated Task',
+            'description': 'Updated task description',
+            'status': 'Completed'
+        }
+        response = self.client.put(self.url_task, data, content_type='application/json')
+        self.assertEqual(response.status_code, 404)
+
+    def test_update_task_with_bad_status(self):
+        data = {
+            'id': self.task.id,  # A non-existent ID
+            'title': 'Updated Task',
+            'description': 'Updated task description',
+            'status': 'badstatus'
+        }
+        response = self.client.put(self.url_task, data, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_delete_task_with_non_existent_id(self):
+        data = {
+            'id': 9999,  # A non-existent ID
+        }
+        response = self.client.delete(self.url_task, data, content_type='application/json')
+        self.assertEqual(response.status_code, 404)
+
+
+class TestTasksList(TestCase):
+    """
+        Test cases for views in the app.
+   """
+
+    def setUp(self) -> None:
+        """
+        Set up the test environment.
+        """
+        self.client = Client()
+        Task.objects.create(
+            name="task_completed",
+            description="description",
+            status="Completed"
+        )
+        Task.objects.create(
+            name="task_deleted",
+            description="description",
+            status="Deleted"
+        )
+        Task.objects.create(
+            name="task_pending",
+            description="description",
+            status="Pending"
+        )
+
     def test_pending_tasks(self):
         res = self.client.get(reverse("pending_tasks"))
         json_result = res.json()
         print(json_result)
-        self.assertEqual(res.status_code,200)
-        self.assertGreaterEqual(len(json_result),1)
+        self.assertEqual(res.status_code, 200)
+        self.assertGreaterEqual(len(json_result), 1)
         for i in json_result:
-            self.assertEqual(i["status"],"Pending")
+            self.assertEqual(i["status"], "Pending")
 
     def test_completed_tasks(self):
         res = self.client.get(reverse("completed_tasks"))
         json_result = res.json()
         print(json_result)
-        self.assertEqual(res.status_code,200)
-        self.assertGreaterEqual(len(json_result),1)
+        self.assertEqual(res.status_code, 200)
+        self.assertGreaterEqual(len(json_result), 1)
         for i in json_result:
-            self.assertEqual(i["status"],"Completed")
+            self.assertEqual(i["status"], "Completed")
 
     def test_deleted_tasks(self):
         res = self.client.get(reverse("deleted_tasks"))
         json_result = res.json()
         print(json_result)
-        self.assertEqual(res.status_code,200)
-        self.assertGreaterEqual(len(json_result),1)
+        self.assertEqual(res.status_code, 200)
+        self.assertGreaterEqual(len(json_result), 1)
         for i in json_result:
-            self.assertEqual(i["status"],"Deleted")
-
-
-
+            self.assertEqual(i["status"], "Deleted")

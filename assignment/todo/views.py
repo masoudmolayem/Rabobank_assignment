@@ -70,6 +70,10 @@ class TaskView(View):
        """
         data = json.loads(request.body)
         task = get_object_or_404(self.model, pk=data["id"])
+        if data['status'] not in list(list(zip(*Task.STATUS_CHOICES))[0]):
+            return JsonResponse({"error": "Invalid status provided for task update."}, status=400)
+
+
         task.name = data['title']
         task.description = data['description']
         task.status = data['status']
