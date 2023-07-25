@@ -95,7 +95,7 @@ class TaskView(View):
         task = get_object_or_404(self.model, pk=data["id"])
         task.status="Deleted"
         task.save()
-        return JsonResponse({'message': 'Task deleted successfully'}, status=204)
+        return JsonResponse({'message': 'Task deleted successfully'}, status=200)
 
 
 def pending_tasks(request):

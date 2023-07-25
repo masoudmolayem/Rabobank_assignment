@@ -69,7 +69,7 @@ class TestTask(TestCase):
         }
         json_data = json.dumps(data)
         response = self.client.delete(self.url_task, json_data)
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
         t = Task.objects.get(pk=task_id)
         self.assertEqual(t.status, "Deleted")
 
