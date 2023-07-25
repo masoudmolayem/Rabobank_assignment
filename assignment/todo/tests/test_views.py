@@ -1,7 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from todo.models import Task
-from django.forms.models import model_to_dict
 import json
 
 
@@ -80,6 +79,25 @@ class TestTask(TestCase):
         response = self.client.get(get_url)
         self.assertEqual(response.status_code, 404)
 
+    def test_get_task_without_sending_id(self):
+        response = self.client.get(self.url_task)
+        self.assertEqual(response.status_code, 400)
+
+    def test_task_post_wrong_data(self):
+        new_task = {
+            "description": "new task description",
+        }
+        response = self.client.post(self.url_task, data=new_task)
+        self.assertEqual(response.status_code, 400)
+
+    def test_task_post_wrong_data2(self):
+        new_task = {
+            "title": "new task",
+        }
+        response = self.client.post(self.url_task, data=new_task)
+        self.assertEqual(response.status_code, 400)
+
+
     def test_update_task_with_non_existent_id(self):
         data = {
             'id': 9999,  # A non-existent ID
@@ -89,6 +107,42 @@ class TestTask(TestCase):
         }
         response = self.client.put(self.url_task, data, content_type='application/json')
         self.assertEqual(response.status_code, 404)
+
+    def test_update_task_missing_data(self):
+        data = {
+            'title': 'Updated Task',
+            'description': 'Updated task description',
+            'status': 'Completed'
+        }
+        response = self.client.put(self.url_task, data, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_update_task_missing_data1(self):
+        data = {
+            "id" : self.task.id,
+            'description': 'Updated task description',
+            'status': 'Completed'
+        }
+        response = self.client.put(self.url_task, data, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_update_task_missing_data2(self):
+        data = {
+            "id" : self.task.id,
+            'title': 'Updated task',
+            'status': 'Completed'
+        }
+        response = self.client.put(self.url_task, data, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_update_task_missing_data3(self):
+        data = {
+            "id" : self.task.id,
+            'title': 'Updated task',
+            'description': 'Updated task description'
+        }
+        response = self.client.put(self.url_task, data, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
 
     def test_update_task_with_bad_status(self):
         data = {
@@ -106,6 +160,12 @@ class TestTask(TestCase):
         }
         response = self.client.delete(self.url_task, data, content_type='application/json')
         self.assertEqual(response.status_code, 404)
+
+
+    def test_delete_task_without_sending_id(self):
+        data = {}
+        response = self.client.delete(self.url_task, data, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
 
 
 class TestTasksList(TestCase):
@@ -137,7 +197,6 @@ class TestTasksList(TestCase):
     def test_pending_tasks(self):
         res = self.client.get(reverse("pending_tasks"))
         json_result = res.json()
-        print(json_result)
         self.assertEqual(res.status_code, 200)
         self.assertGreaterEqual(len(json_result), 1)
         for i in json_result:
@@ -146,7 +205,6 @@ class TestTasksList(TestCase):
     def test_completed_tasks(self):
         res = self.client.get(reverse("completed_tasks"))
         json_result = res.json()
-        print(json_result)
         self.assertEqual(res.status_code, 200)
         self.assertGreaterEqual(len(json_result), 1)
         for i in json_result:
@@ -155,7 +213,6 @@ class TestTasksList(TestCase):
     def test_deleted_tasks(self):
         res = self.client.get(reverse("deleted_tasks"))
         json_result = res.json()
-        print(json_result)
         self.assertEqual(res.status_code, 200)
         self.assertGreaterEqual(len(json_result), 1)
         for i in json_result:

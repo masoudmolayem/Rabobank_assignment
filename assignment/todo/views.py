@@ -42,6 +42,9 @@ class TaskView(View):
         """
              Retrieve details of a specific task.
         """
+        if "id" not in request.GET:
+            return JsonResponse({"message": "there is not id in variables"}, status=400)
+
         task = get_object_or_404(self.model, pk=request.GET["id"])
         data = {
             'id': task.pk,
@@ -56,7 +59,8 @@ class TaskView(View):
             Create a new task.
         """
         data = request.POST
-        # data = json.loads(request.body)
+        if "title" not in data or "description" not in data:
+            return JsonResponse({"message": "some information did not sent"}, status=400)
         task = self.model.objects.create(
             name=data['title'],
             description=data['description'],
@@ -69,10 +73,11 @@ class TaskView(View):
            Update an existing task.
        """
         data = json.loads(request.body)
+        if "title" not in data or "description" not in data or "id" not in data or "status" not in data:
+            return JsonResponse({"message": "some information did not sent"}, status=400)
         task = get_object_or_404(self.model, pk=data["id"])
         if data['status'] not in list(list(zip(*Task.STATUS_CHOICES))[0]):
             return JsonResponse({"error": "Invalid status provided for task update."}, status=400)
-
 
         task.name = data['title']
         task.description = data['description']
@@ -85,6 +90,8 @@ class TaskView(View):
             Delete an existing task.
         """
         data = json.loads(request.body)
+        if "id" not in data:
+            return JsonResponse({"message": "there is not id in variables"}, status=400)
         task = get_object_or_404(self.model, pk=data["id"])
         task.delete()
         return JsonResponse({'message': 'Task deleted successfully'}, status=204)
